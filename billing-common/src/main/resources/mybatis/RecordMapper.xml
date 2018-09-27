@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wow.common.dao.RecordDao">
+	<resultMap id="BaseResultMap" type="cn.wow.common.domain.Record">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="expire_date" jdbcType="DATE" property="expireDate" />
+		<result column="price" jdbcType="DOUBLE" property="price" />
+		<result column="scale" jdbcType="INTEGER" property="scale" />
+		<result column="extract1" jdbcType="DOUBLE" property="extract1" />
+		<result column="extract2" jdbcType="DOUBLE" property="extract2" />
+		<result column="is_cutoff" jdbcType="INTEGER" property="isCutoff" />
+		<result column="cutoff_date" jdbcType="DATE" property="cutoffDate" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+		<result column="remark" jdbcType="VARCHAR" property="remark" />
+	</resultMap>
+
+	<sql id="base_columns">
+		id, name, expire_date, price, scale, extract1, extract2, is_cutoff,
+		cutoff_date, create_time, update_time, remark
+	</sql>
+
+	<select id="selectOne" parameterType="java.lang.Long" resultMap="BaseResultMap">
+		select <include refid="base_columns" /> from record where id = #{id,jdbcType=BIGINT}
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		delete from record where id = #{id,jdbcType=BIGINT}
+	</delete>
+	
+	<insert id="insert" parameterType="cn.wow.common.domain.Record">
+		insert into record (name, expire_date, price, scale, extract1, extract2, is_cutoff, cutoff_date, create_time, update_time, remark)
+		values (#{name,jdbcType=VARCHAR}, #{expireDate,jdbcType=DATE}, #{price,jdbcType=DOUBLE}, #{scale,jdbcType=INTEGER}, #{extract1,jdbcType=DOUBLE},
+		#{extract2,jdbcType=DOUBLE}, #{isCutoff,jdbcType=INTEGER}, #{cutoffDate,jdbcType=DATE}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR})
+	</insert>
+
+	<update id="update" parameterType="cn.wow.common.domain.Record">
+		update record
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="expireDate != null">
+				expire_date = #{expireDate,jdbcType=DATE},
+			</if>
+			<if test="price != null">
+				price = #{price,jdbcType=DOUBLE},
+			</if>
+			<if test="scale != null">
+				scale = #{scale,jdbcType=INTEGER},
+			</if>
+			<if test="extract1 != null">
+				extract1 = #{extract1,jdbcType=DOUBLE},
+			</if>
+			<if test="extract2 != null">
+				extract2 = #{extract2,jdbcType=DOUBLE},
+			</if>
+			<if test="isCutoff != null">
+				is_cutoff = #{isCutoff,jdbcType=INTEGER},
+			</if>
+			<if test="cutoffDate != null">
+				cutoff_date = #{cutoffDate,jdbcType=DATE},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			remark = #{remark,jdbcType=VARCHAR}
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="selectAllList" resultMap="BaseResultMap" parameterType="java.util.Map" >
+	  	select <include refid="base_columns" /> from record
+	     <where>
+	     	  <if test="name != null"> 
+				and name = #{name,jdbcType=VARCHAR} 
+			  </if>
+			  <if test="qname != null">
+				and name like concat('%', #{qname,jdbcType=VARCHAR}, '%') 
+			  </if>
+			  <if test="startExpireDate != null and startExpireDate != ''">  
+		    	and expire_date &gt;= #{startExpireDate, jdbcType=DATE}
+		      </if>
+		      <if test="endExpireDate != null and endExpireDate != ''">  
+		    	and expire_date &lt;= #{endExpireDate, jdbcType=DATE}
+		      </if>
+		      <if test="startCreateTime != null and startCreateTime != ''">  
+		    	and create_time &gt;= #{startCreateTime, jdbcType=TIMESTAMP}
+		      </if>
+		      <if test="endCreateTime != null and endCreateTime != ''">  
+		    	and create_time &lt;= #{endCreateTime, jdbcType=TIMESTAMP}
+		      </if>
+		      <if test="startUpdateTime != null and startUpdateTime != ''">  
+		    	and update_time &gt;= #{startUpdateTime, jdbcType=TIMESTAMP}
+		      </if>
+		      <if test="endUpdateTime != null and endUpdateTime != ''">  
+		    	and update_time &lt;= #{endUpdateTime, jdbcType=TIMESTAMP}
+		      </if>
+		      <if test="startCutoffDate != null and startCutoffDate != ''">
+				and cutoff_date &gt;= #{startCutoffDate,jdbcType=DATE}
+			  </if>
+			  <if test="endCutoffDate != null and endCutoffDate != ''">  
+		    	and cutoff_date &lt;= #{endCutoffDate, jdbcType=DATE}
+		      </if>
+		      <if test="isCutoff != null">
+				and is_cutoff = #{isCutoff,jdbcType=INTEGER}
+			 </if>
+	      </where>
+	      
+		  <choose>
+	  		<when test="custom_order_sql != null">
+	  			order by ${custom_order_sql}
+	  		</when>
+	  		<otherwise>
+	  			order by id desc
+	  		</otherwise>
+	 	 </choose>
+	  </select>
+	
+</mapper>
