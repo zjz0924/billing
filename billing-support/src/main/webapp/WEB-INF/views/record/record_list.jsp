@@ -89,8 +89,8 @@
 							<td style="color:red; font-weight: bold;"><fmt:formatDate value='${vo.cutoffDate }' type="date" pattern="yyyy-MM-dd" /></td>
 							<td title="${vo.name}">${vo.name}</td>
 							<td><fmt:formatDate value='${vo.expireDate }' type="date" pattern="yyyy-MM-dd" /></td>
-							<td title="${vo.price}">${vo.price}</td>
-							<td title="${vo.scale }" style="color:red; font-weight: bold;">${vo.scale }</td>
+							<td title="${vo.combo.price}">${vo.combo.price}</td>
+							<td title="${vo.scale.val }" style="color:red; font-weight: bold;">${vo.scale.val }</td>
 							<td title="${vo.extract1 }" style="color:red; font-weight: bold;">${vo.extract1 }</td>
 							<td title="${vo.extract2 }">${vo.extract2 }</td>
 							<td><fmt:formatDate value='${vo.createTime }' type="date" pattern="yyyy-MM-dd HH:mm:ss"/></td>

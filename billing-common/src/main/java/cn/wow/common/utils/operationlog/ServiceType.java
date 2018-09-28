@@ -12,7 +12,9 @@ import java.io.Serializable;
  */
 public enum ServiceType implements Serializable {
 	ACCOUNT("用户管理"),
-	RECORD("记录管理");
+	RECORD("记录管理"),
+	COMBO("套餐管理"),
+	SCALE("分成管理");
 
 	private String displayName;
 

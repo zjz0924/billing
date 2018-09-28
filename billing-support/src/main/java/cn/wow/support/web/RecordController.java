@@ -6,8 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -23,11 +25,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import cn.wow.common.domain.Account;
+import cn.wow.common.domain.Combo;
 import cn.wow.common.domain.Record;
-import cn.wow.common.domain.SignRecord;
+import cn.wow.common.domain.Scale;
+import cn.wow.common.service.ComboService;
 import cn.wow.common.service.OperationLogService;
 import cn.wow.common.service.RecordService;
+import cn.wow.common.service.ScaleService;
 import cn.wow.common.service.StatisticsService;
 import cn.wow.common.utils.AjaxVO;
 import cn.wow.common.utils.Contants;
@@ -51,6 +57,12 @@ public class RecordController extends AbstractController {
 
 	@Autowired
 	private OperationLogService operationLogService;
+
+	@Autowired
+	private ComboService comboService;
+
+	@Autowired
+	private ScaleService scaleService;
 
 	// 查询的条件，用于导出
 	private Map<String, Object> queryMap = new PageMap(false);
@@ -137,57 +149,106 @@ public class RecordController extends AbstractController {
 
 	@RequestMapping(value = "/detail")
 	public String detail(HttpServletRequest request, Model model, String id) {
-		Date cutoffDate = new Date();
-
 		if (StringUtils.isNotBlank(id)) {
 			Record record = recordService.selectOne(Long.parseLong(id));
-			cutoffDate = record.getCutoffDate();
 			model.addAttribute("facadeBean", record);
 		}
 
-		model.addAttribute("cutoffDate", cutoffDate);
+		// 套餐信息
+		Map<String, Object> comboMap = new PageMap(false);
+		comboMap.put("custom_order_sql", "name asc");
+		comboMap.put("isDelete", "0");
+		List<Combo> comboList = comboService.selectAllList(comboMap);
+
+		// 分成信息
+		Map<String, Object> scaleMap = new PageMap(false);
+		scaleMap.put("custom_order_sql", "val asc");
+		scaleMap.put("isDelete", "0");
+		List<Scale> scaleList = scaleService.selectAllList(scaleMap);
+
+		model.addAttribute("comboList", comboList);
+		model.addAttribute("scaleList", scaleList);
 		model.addAttribute("mode", request.getParameter("mode"));
 		return "record/record_detail";
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/save")
-	public AjaxVO save(HttpServletRequest request, Model model, String id, String name, String expireDate, double price,
-			int scale, String remark, String cutoffDate) {
+	public AjaxVO save(HttpServletRequest request, Model model, String id, String name, String expireDate,
+			String comboId, String scaleId, String remark, String cutoffDate) {
 		AjaxVO vo = new AjaxVO();
 		vo.setMsg("编辑成功");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		Record record = null;
 
 		try {
-			BigDecimal bg = new BigDecimal((price * scale * 0.01));
+			double priceVal = 0d;
+			if (StringUtils.isNotBlank(comboId)) {
+				Combo combo = comboService.selectOne(Long.parseLong(comboId));
+				if (combo != null) {
+					priceVal = combo.getPrice();
+				}
+			}
+
+			int scaleVal = 0;
+			if (StringUtils.isNotBlank(scaleId)) {
+				Scale scale = scaleService.selectOne(Long.parseLong(scaleId));
+				if (scale != null) {
+					scaleVal = scale.getVal();
+				}
+			}
+
+			BigDecimal bg = new BigDecimal((priceVal * scaleVal * 0.01));
 			double f1 = bg.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
-			double f2 = price - f1;
+			double f2 = priceVal - f1;
 			Date date = new Date();
 
 			if (StringUtils.isNotBlank(id)) {
 				record = recordService.selectOne(Long.parseLong(id));
 				record.setName(name);
-				record.setExpireDate(sdf.parse(expireDate));
-				record.setPrice(price);
-				record.setScale(scale);
+				if (StringUtils.isNoneBlank(expireDate)) {
+					record.setExpireDate(sdf.parse(expireDate));
+				}
+				if (StringUtils.isNotBlank(scaleId)) {
+					record.setScaleId(Long.parseLong(scaleId));
+				}
+				if (StringUtils.isNotBlank(comboId)) {
+					record.setComboId(Long.parseLong(comboId));
+				}
+				record.setPrice(priceVal);
 				record.setExtract1(f1);
 				record.setExtract2(f2);
-				record.setCutoffDate(sdf.parse(cutoffDate));
+
+				if (StringUtils.isNoneBlank(cutoffDate)) {
+					record.setCutoffDate(sdf.parse(cutoffDate));
+				}
+
 				record.setUpdateTime(date);
 				record.setRemark(remark);
 				recordService.update(getCurrentUserName(), record);
 			} else {
 				record = new Record();
 				record.setName(name);
-				record.setExpireDate(sdf.parse(expireDate));
-				record.setPrice(price);
-				record.setScale(scale);
+
+				if (StringUtils.isNoneBlank(expireDate)) {
+					record.setExpireDate(sdf.parse(expireDate));
+				}
+				if (StringUtils.isNotBlank(scaleId)) {
+					record.setScaleId(Long.parseLong(scaleId));
+				}
+				if (StringUtils.isNotBlank(comboId)) {
+					record.setComboId(Long.parseLong(comboId));
+				}
+				record.setPrice(priceVal);
 				record.setExtract1(f1);
 				record.setExtract2(f2);
 				record.setCreateTime(date);
 				record.setUpdateTime(date);
-				record.setCutoffDate(sdf.parse(cutoffDate));
+
+				if (StringUtils.isNoneBlank(cutoffDate)) {
+					record.setCutoffDate(sdf.parse(cutoffDate));
+				}
+
 				record.setIsCutoff(0);
 				record.setRemark(remark);
 				recordService.save(getCurrentUserName(), record);
@@ -332,11 +393,15 @@ public class RecordController extends AbstractController {
 
 				Cell cell4 = contentRow.createCell(3);
 				cell4.setCellStyle(styles.get("cell"));
-				cell4.setCellValue(record.getPrice());
+				if(record.getCombo() != null) {
+					cell4.setCellValue(record.getCombo().getPrice());
+				}
 
 				Cell cell5 = contentRow.createCell(4);
 				cell5.setCellStyle(styles.get("cell"));
-				cell5.setCellValue(record.getScale());
+				if(record.getScale() != null) {
+					cell5.setCellValue(record.getScale().getVal());
+				}
 
 				Cell cell6 = contentRow.createCell(5);
 				cell6.setCellStyle(styles.get("cell"));
@@ -353,7 +418,7 @@ public class RecordController extends AbstractController {
 				Cell cell9 = contentRow.createCell(8);
 				cell9.setCellStyle(styles.get("cell"));
 				cell9.setCellValue(sdf.format(record.getUpdateTime()));
-				
+
 				Cell cell10 = contentRow.createCell(9);
 				cell10.setCellStyle(styles.get("cell"));
 				cell10.setCellValue(record.getRemark());
@@ -363,20 +428,19 @@ public class RecordController extends AbstractController {
 
 			Row contentRow = sh.createRow(++r);
 			contentRow.setHeight((short) 400);
-			
+
 			Cell cell1 = contentRow.createCell(0);
 			cell1.setCellStyle(styles.get("cell"));
 			cell1.setCellValue("总金额：" + (priceItem.getTotal1() + priceItem.getTotal2()));
-			
+
 			Cell cell2 = contentRow.createCell(1);
 			cell2.setCellStyle(styles.get("cell"));
 			cell2.setCellValue("我的：" + priceItem.getTotal1());
-			
+
 			Cell cell3 = contentRow.createCell(2);
 			cell3.setCellStyle(styles.get("cell"));
 			cell3.setCellValue("其他：" + priceItem.getTotal2());
-			
-			
+
 			OutputStream os = response.getOutputStream();
 			wb.write(os);
 			os.flush();

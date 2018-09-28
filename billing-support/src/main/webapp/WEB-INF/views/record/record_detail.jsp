@@ -34,30 +34,40 @@
 							</div>
 
 							<div class="row cl">
-								<label class="form-label col-xs-3 col-sm-3"><span class="c-red">*</span>过期日期：</label>
+								<label class="form-label col-xs-3 col-sm-3">过期日期：</label>
 								<div class="formControls col-xs-8 col-sm-9">
 									<input type="text" onfocus="WdatePicker()" id="expireDate" name="expireDate" class="input-text Wdate" value="<fmt:formatDate value='${facadeBean.expireDate}' type="date" pattern="yyyy-MM-dd" />">
 								</div>
 							</div>
 
 							<div class="row cl">
-								<label class="form-label col-xs-3 col-sm-3"><span class="c-red">*</span>金额：</label>
+								<label class="form-label col-xs-3 col-sm-3">套餐：</label>
 								<div class="formControls col-xs-8 col-sm-9">
-									<input type="text" class="input-text" value="${facadeBean.price}" id="price" name="price">
+									<select class="select input-text" id="comboId" name="comboId">
+										<option value="">请选择</option>
+										<c:forEach items="${comboList}" var="vo">
+											<option value="${vo.id}" <c:if test="${vo.id == facadeBean.comboId}">selected="selected"</c:if>>${vo.name}</option>
+										</c:forEach>
+									</select>
 								</div>
 							</div>
 
 							<div class="row cl">
-								<label class="form-label col-xs-3 col-sm-3"><span class="c-red">*</span>比例（整数）：</label>
+								<label class="form-label col-xs-3 col-sm-3">分成：</label>
 								<div class="formControls col-xs-8 col-sm-9">
-									<input type="text" class="input-text" value="${facadeBean.scale}" id="scale" name="scale">
+									<select class="select input-text" id="scaleId" name="scaleId">
+										<option value="">请选择</option>
+										<c:forEach items="${scaleList}" var="vo">
+											<option value="${vo.id}" <c:if test="${vo.id == facadeBean.scaleId}">selected="selected"</c:if>>${vo.val} %</option>
+										</c:forEach>
+									</select>
 								</div>
 							</div>
 
 							<div class="row cl">
-								<label class="form-label col-xs-3 col-sm-3"><span class="c-red">*</span>结算日期：</label>
+								<label class="form-label col-xs-3 col-sm-3">结算日期：</label>
 								<div class="formControls col-xs-8 col-sm-9">
-									<input type="text" onfocus="WdatePicker()" id="cutoffDate" name="cutoffDate" class="input-text Wdate" value="<fmt:formatDate value='${cutoffDate}' type="date" pattern="yyyy-MM-dd" />">
+									<input type="text" onfocus="WdatePicker()" id="cutoffDate" name="cutoffDate" class="input-text Wdate" value="<fmt:formatDate value='${facadeBean.cutoffDate}' type="date" pattern="yyyy-MM-dd" />">
 								</div>
 							</div>
 
@@ -119,54 +129,18 @@
 							}
 							
 							// 过期日期
-							var expireDate = $("#expireDate").val();
+							/* var expireDate = $("#expireDate").val();
 							if(expireDate == null || expireDate == "" || expireDate == undefined){
 								layer.msg('请选择过期日期', { icon : 5, time : 1000 });
 								return false;
-							}
-							
-							// 价钱
-							var price = $("#price").val();
-							if(price == null || price == "" || price == undefined){
-								layer.msg('请填写金额', { icon : 5, time : 1000 });
-								$("#price").val("");
-								$("#price").focus();
-								return false;
-							}else{
-								if(isNaN(price)){
-									layer.msg('金额只能是数字', { icon : 5, time : 1000 });
-									$("#price").val("");
-									$("#price").focus();
-									return false;	
-								}
-							}
-							
-							// 比例
-							var scale = $("#scale").val();
-							if(scale == null || scale == "" || scale == undefined){
-								layer.msg('请填写比例', { icon : 5, time : 1000 });
-								$("#scale").val("");
-								$("#scale").focus();
-								return false;
-							}else{
-								var type="^[0-9]*[1-9][0-9]*$"; 
-								var r = new RegExp(type); 
-								var flag = r.test(scale);
-								
-								if(!flag){
-									layer.msg('比例只能是正整数', { icon : 5, time : 1000 });
-									$("#scale").val("");
-									$("#scale").focus();
-									return false;	
-								}
-							}
+							} */
 							
 							// 结算日期
-							var cutoffDate = $("#cutoffDate").val();
+							/* var cutoffDate = $("#cutoffDate").val();
 							if(cutoffDate == null || cutoffDate == "" || cutoffDate == undefined){
 								layer.msg('请选择结算日期', { icon : 5, time : 1000 });
 								return false;
-							}
+							} */
 							
 							$("#loadingDiv").show();
 							$("#submitDiv").hide();

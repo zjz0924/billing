@@ -5,14 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import cn.wow.common.domain.Account;
-import cn.wow.common.domain.Certificate;
 import cn.wow.common.domain.Combo;
-import cn.wow.common.domain.Contacts;
-import cn.wow.common.domain.Menu;
-import cn.wow.common.domain.Pay;
 import cn.wow.common.domain.Record;
-import cn.wow.common.domain.SignRecord;
-import cn.wow.common.domain.App;
+import cn.wow.common.domain.Scale;
 import cn.wow.common.utils.operationlog.ServiceType;
 
 public final class EntityServiceTypeMap {
@@ -31,23 +26,15 @@ public final class EntityServiceTypeMap {
 	static void initMap() {
 		typeMap.clear();
 		typeMap.put(Account.class.getName(), ServiceType.ACCOUNT);
-		/*typeMap.put(Certificate.class.getName(), ServiceType.CERTIFICATE);
-		typeMap.put(App.class.getName(), ServiceType.SIGN);
-		typeMap.put(Contacts.class.getName(), ServiceType.CONTACTS);
 		typeMap.put(Combo.class.getName(), ServiceType.COMBO);
-		typeMap.put(SignRecord.class.getName(), ServiceType.SIGNRECORD);
-		typeMap.put(Pay.class.getName(), ServiceType.PAY);*/
+		typeMap.put(Scale.class.getName(), ServiceType.SCALE);
 		typeMap.put(Record.class.getName(), ServiceType.RECORD);
 		
 		//DAO 类型
 		daoMap.clear();
 		daoMap.put(Account.class.getName(), "cn.wow.common.dao.AccountDao.selectOne");
-		/*daoMap.put(Certificate.class.getName(), "cn.wow.common.dao.CertificateDao.selectOne");
-		daoMap.put(App.class.getName(), "cn.wow.common.dao.AppDao.selectOne");
-		daoMap.put(Contacts.class.getName(), "cn.wow.common.dao.ContactsDao.selectOne");
 		daoMap.put(Combo.class.getName(), "cn.wow.common.dao.ComboDao.selectOne");
-		daoMap.put(SignRecord.class.getName(), "cn.wow.common.dao.SignRecordDao.selectOne");
-		daoMap.put(Pay.class.getName(), "cn.wow.common.dao.PayDao.selectOne");*/
+		daoMap.put(Scale.class.getName(), "cn.wow.common.dao.ScaleDao.selectOne");
 		daoMap.put(Record.class.getName(), "cn.wow.common.dao.RecordDao.selectOne");
 	}
 

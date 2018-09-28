@@ -6,7 +6,6 @@
 		<result column="name" jdbcType="VARCHAR" property="name" />
 		<result column="expire_date" jdbcType="DATE" property="expireDate" />
 		<result column="price" jdbcType="DOUBLE" property="price" />
-		<result column="scale" jdbcType="INTEGER" property="scale" />
 		<result column="extract1" jdbcType="DOUBLE" property="extract1" />
 		<result column="extract2" jdbcType="DOUBLE" property="extract2" />
 		<result column="is_cutoff" jdbcType="INTEGER" property="isCutoff" />
@@ -14,11 +13,15 @@
 		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
 		<result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
 		<result column="remark" jdbcType="VARCHAR" property="remark" />
+		<result column="combo_id" jdbcType="BIGINT" property="comboId" />
+		<result column="scale_id" jdbcType="BIGINT" property="scaleId" />
+		<association property="combo" javaType="cn.wow.common.domain.Combo" column="combo_id" select="cn.wow.common.dao.ComboDao.selectOne"/> 
+		<association property="scale" javaType="cn.wow.common.domain.Scale" column="scale_id" select="cn.wow.common.dao.ScaleDao.selectOne"/> 
 	</resultMap>
 
 	<sql id="base_columns">
-		id, name, expire_date, price, scale, extract1, extract2, is_cutoff,
-		cutoff_date, create_time, update_time, remark
+		id, name, expire_date, price, extract1, extract2, is_cutoff,
+		cutoff_date, create_time, update_time, remark, combo_id, scale_id
 	</sql>
 
 	<select id="selectOne" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -30,9 +33,10 @@
 	</delete>
 	
 	<insert id="insert" parameterType="cn.wow.common.domain.Record">
-		insert into record (name, expire_date, price, scale, extract1, extract2, is_cutoff, cutoff_date, create_time, update_time, remark)
-		values (#{name,jdbcType=VARCHAR}, #{expireDate,jdbcType=DATE}, #{price,jdbcType=DOUBLE}, #{scale,jdbcType=INTEGER}, #{extract1,jdbcType=DOUBLE},
-		#{extract2,jdbcType=DOUBLE}, #{isCutoff,jdbcType=INTEGER}, #{cutoffDate,jdbcType=DATE}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR})
+		insert into record (name, expire_date, price, extract1, extract2, is_cutoff, cutoff_date, create_time, update_time, remark, combo_id, scale_id)
+		values (#{name,jdbcType=VARCHAR}, #{expireDate,jdbcType=DATE}, #{price,jdbcType=DOUBLE}, #{extract1,jdbcType=DOUBLE},
+		#{extract2,jdbcType=DOUBLE}, #{isCutoff,jdbcType=INTEGER}, #{cutoffDate,jdbcType=DATE}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}
+		, #{comboId,jdbcType=BIGINT}, #{scaleId,jdbcType=BIGINT})
 	</insert>
 
 	<update id="update" parameterType="cn.wow.common.domain.Record">
@@ -46,9 +50,6 @@
 			</if>
 			<if test="price != null">
 				price = #{price,jdbcType=DOUBLE},
-			</if>
-			<if test="scale != null">
-				scale = #{scale,jdbcType=INTEGER},
 			</if>
 			<if test="extract1 != null">
 				extract1 = #{extract1,jdbcType=DOUBLE},
@@ -67,6 +68,12 @@
 			</if>
 			<if test="updateTime != null">
 				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="comboId != null">
+				combo_id = #{comboId,jdbcType=BIGINT},
+			</if>
+			<if test="scaleId != null">
+			 	scale_id = #{scaleId,jdbcType=BIGINT},
 			</if>
 			remark = #{remark,jdbcType=VARCHAR}
 		</set>

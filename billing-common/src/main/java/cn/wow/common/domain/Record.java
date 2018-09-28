@@ -12,10 +12,14 @@ public class Record extends JpaEntity {
 	private String name;
 	// 到期时间
 	private Date expireDate;
+	// 套餐ID
+	private Long comboId;
+	private Combo combo;
 	// 价钱
 	private Double price;
-	// 比例
-	private Integer scale;
+	// 分成ID
+	private Long scaleId;
+	private Scale scale;
 	// 份额（占比例）
 	private Double extract1;
     // 份额（剩余）
@@ -62,12 +66,20 @@ public class Record extends JpaEntity {
 	public void setPrice(Double price) {
 		this.price = price;
 	}
+	
+	public Combo getCombo() {
+		return combo;
+	}
 
-	public Integer getScale() {
+	public void setCombo(Combo combo) {
+		this.combo = combo;
+	}
+
+	public Scale getScale() {
 		return scale;
 	}
 
-	public void setScale(Integer scale) {
+	public void setScale(Scale scale) {
 		this.scale = scale;
 	}
 
@@ -125,6 +137,22 @@ public class Record extends JpaEntity {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+	
+	public Long getComboId() {
+		return comboId;
+	}
+
+	public void setComboId(Long comboId) {
+		this.comboId = comboId;
+	}
+
+	public Long getScaleId() {
+		return scaleId;
+	}
+
+	public void setScaleId(Long scaleId) {
+		this.scaleId = scaleId;
 	}
 
 	@Override

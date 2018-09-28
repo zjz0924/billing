@@ -62,7 +62,8 @@
 				<dd style="display: block;">
 					<ul>
 						<li><a data-href="${ctx}/record/list?type=0" data-title="未结算" href="javascript:void(0)">未结算</a></li>
-						
+						<li><a data-href="${ctx}/combo/list" data-title="套餐管理" href="javascript:void(0)">套餐管理</a></li>
+						<li><a data-href="${ctx}/scale/list" data-title="分成管理" href="javascript:void(0)">分成管理</a></li>
 					</ul>
 				</dd>
 			</dl>
