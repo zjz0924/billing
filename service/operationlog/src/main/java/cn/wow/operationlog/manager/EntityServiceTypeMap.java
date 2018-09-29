@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import cn.wow.common.domain.Account;
+import cn.wow.common.domain.App;
 import cn.wow.common.domain.Combo;
 import cn.wow.common.domain.Record;
 import cn.wow.common.domain.Scale;
@@ -29,6 +30,7 @@ public final class EntityServiceTypeMap {
 		typeMap.put(Combo.class.getName(), ServiceType.COMBO);
 		typeMap.put(Scale.class.getName(), ServiceType.SCALE);
 		typeMap.put(Record.class.getName(), ServiceType.RECORD);
+		typeMap.put(App.class.getName(), ServiceType.APP);
 		
 		//DAO 类型
 		daoMap.clear();
@@ -36,6 +38,7 @@ public final class EntityServiceTypeMap {
 		daoMap.put(Combo.class.getName(), "cn.wow.common.dao.ComboDao.selectOne");
 		daoMap.put(Scale.class.getName(), "cn.wow.common.dao.ScaleDao.selectOne");
 		daoMap.put(Record.class.getName(), "cn.wow.common.dao.RecordDao.selectOne");
+		daoMap.put(App.class.getName(), "cn.wow.common.dao.AppDao.selectOne");
 	}
 
 	public static ServiceType getServiceType(Class<?> clazz) {

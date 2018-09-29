@@ -8,8 +8,6 @@ public class Record extends JpaEntity {
 	private static final long serialVersionUID = 1L;
 
 	private Long id;
-	// 名称
-	private String name;
 	// 到期时间
 	private Date expireDate;
 	// 套餐ID
@@ -24,8 +22,6 @@ public class Record extends JpaEntity {
 	private Double extract1;
     // 份额（剩余）
 	private Double extract2;
-	// 是否已结算（0：否，1：是）
-	private Integer isCutoff;
 	// 结算日期
 	private Date cutoffDate;
 	// 创建时间
@@ -34,6 +30,12 @@ public class Record extends JpaEntity {
 	private Date updateTime;
 	// 备注
 	private String remark;
+	// 类型：1-新增，2-续费
+	private Integer type;
+	//
+	private Long appId;
+	
+	private App app;
 
 	public Long getId() {
 		return id;
@@ -41,14 +43,6 @@ public class Record extends JpaEntity {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name == null ? null : name.trim();
 	}
 
 	public Date getExpireDate() {
@@ -99,12 +93,12 @@ public class Record extends JpaEntity {
 		this.extract2 = extract2;
 	}
 
-	public Integer getIsCutoff() {
-		return isCutoff;
+	public Integer getType() {
+		return type;
 	}
 
-	public void setIsCutoff(Integer isCutoff) {
-		this.isCutoff = isCutoff;
+	public void setType(Integer type) {
+		this.type = type;
 	}
 
 	public Date getCutoffDate() {
@@ -153,6 +147,22 @@ public class Record extends JpaEntity {
 
 	public void setScaleId(Long scaleId) {
 		this.scaleId = scaleId;
+	}
+	
+	public Long getAppId() {
+		return appId;
+	}
+
+	public void setAppId(Long appId) {
+		this.appId = appId;
+	}
+
+	public App getApp() {
+		return app;
+	}
+
+	public void setApp(App app) {
+		this.app = app;
 	}
 
 	@Override

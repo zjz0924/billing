@@ -61,7 +61,9 @@
 				</dt>
 				<dd style="display: block;">
 					<ul>
-						<li><a data-href="${ctx}/record/list?type=0" data-title="未结算" href="javascript:void(0)">未结算</a></li>
+						<li><a data-href="${ctx}/app/newList" data-title="新增App" href="javascript:void(0)">新增App</a></li>
+						<li><a data-href="${ctx}/app/list" data-title="APP管理" href="javascript:void(0)">App管理</a></li>
+						<li><a data-href="${ctx}/statistic/expire" data-title="即将到期" href="javascript:void(0)">即将到期</a></li>
 						<li><a data-href="${ctx}/combo/list" data-title="套餐管理" href="javascript:void(0)">套餐管理</a></li>
 						<li><a data-href="${ctx}/scale/list" data-title="分成管理" href="javascript:void(0)">分成管理</a></li>
 					</ul>
@@ -74,7 +76,7 @@
 				</dt>
 				<dd>
 					<ul>
-						<li><a data-href="${ctx}/record/list?type=1" data-title="已结算" href="javascript:void(0)">收入记录</a></li>
+						<li><a data-href="${ctx}/statistic/income" data-title="收入记录" href="javascript:void(0)">收入记录</a></li>
 						<li><a data-href="${ctx}/statistic/monthStatistic" data-title="每天收入详情" href="javascript:void(0)">每天收入详情</a></li>
 					</ul>
 				</dd>

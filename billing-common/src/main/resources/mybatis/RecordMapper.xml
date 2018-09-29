@@ -3,29 +3,30 @@
 <mapper namespace="cn.wow.common.dao.RecordDao">
 	<resultMap id="BaseResultMap" type="cn.wow.common.domain.Record">
 		<id column="id" jdbcType="BIGINT" property="id" />
-		<result column="name" jdbcType="VARCHAR" property="name" />
 		<result column="expire_date" jdbcType="DATE" property="expireDate" />
 		<result column="price" jdbcType="DOUBLE" property="price" />
 		<result column="extract1" jdbcType="DOUBLE" property="extract1" />
 		<result column="extract2" jdbcType="DOUBLE" property="extract2" />
-		<result column="is_cutoff" jdbcType="INTEGER" property="isCutoff" />
+		<result column="type" jdbcType="INTEGER" property="type" />
 		<result column="cutoff_date" jdbcType="DATE" property="cutoffDate" />
 		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
 		<result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
 		<result column="remark" jdbcType="VARCHAR" property="remark" />
 		<result column="combo_id" jdbcType="BIGINT" property="comboId" />
 		<result column="scale_id" jdbcType="BIGINT" property="scaleId" />
+		<result column="app_id" jdbcType="BIGINT" property="appId" />
 		<association property="combo" javaType="cn.wow.common.domain.Combo" column="combo_id" select="cn.wow.common.dao.ComboDao.selectOne"/> 
 		<association property="scale" javaType="cn.wow.common.domain.Scale" column="scale_id" select="cn.wow.common.dao.ScaleDao.selectOne"/> 
+		<association property="app" javaType="cn.wow.common.domain.App" column="app_id" select="cn.wow.common.dao.AppDao.selectOne"/> 
 	</resultMap>
 
 	<sql id="base_columns">
-		id, name, expire_date, price, extract1, extract2, is_cutoff,
-		cutoff_date, create_time, update_time, remark, combo_id, scale_id
+		c.id, c.expire_date, c.price, c.extract1, c.extract2, c.type,
+		c.cutoff_date, c.create_time, c.update_time, c.remark, c.combo_id, c.scale_id, c.app_id
 	</sql>
 
 	<select id="selectOne" parameterType="java.lang.Long" resultMap="BaseResultMap">
-		select <include refid="base_columns" /> from record where id = #{id,jdbcType=BIGINT}
+		select <include refid="base_columns" /> from record c where c.id = #{id,jdbcType=BIGINT}
 	</select>
 	
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
@@ -33,18 +34,15 @@
 	</delete>
 	
 	<insert id="insert" parameterType="cn.wow.common.domain.Record">
-		insert into record (name, expire_date, price, extract1, extract2, is_cutoff, cutoff_date, create_time, update_time, remark, combo_id, scale_id)
-		values (#{name,jdbcType=VARCHAR}, #{expireDate,jdbcType=DATE}, #{price,jdbcType=DOUBLE}, #{extract1,jdbcType=DOUBLE},
-		#{extract2,jdbcType=DOUBLE}, #{isCutoff,jdbcType=INTEGER}, #{cutoffDate,jdbcType=DATE}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}
-		, #{comboId,jdbcType=BIGINT}, #{scaleId,jdbcType=BIGINT})
+		insert into record (expire_date, price, extract1, extract2, type, cutoff_date, create_time, update_time, remark, combo_id, scale_id, app_id)
+		values (#{expireDate,jdbcType=DATE}, #{price,jdbcType=DOUBLE}, #{extract1,jdbcType=DOUBLE},
+		#{extract2,jdbcType=DOUBLE}, #{type,jdbcType=INTEGER}, #{cutoffDate,jdbcType=DATE}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}
+		, #{comboId,jdbcType=BIGINT}, #{scaleId,jdbcType=BIGINT}, #{appId,jdbcType=BIGINT})
 	</insert>
 
 	<update id="update" parameterType="cn.wow.common.domain.Record">
 		update record
 		<set>
-			<if test="name != null">
-				name = #{name,jdbcType=VARCHAR},
-			</if>
 			<if test="expireDate != null">
 				expire_date = #{expireDate,jdbcType=DATE},
 			</if>
@@ -57,8 +55,8 @@
 			<if test="extract2 != null">
 				extract2 = #{extract2,jdbcType=DOUBLE},
 			</if>
-			<if test="isCutoff != null">
-				is_cutoff = #{isCutoff,jdbcType=INTEGER},
+			<if test="type != null">
+				type = #{type,jdbcType=INTEGER},
 			</if>
 			<if test="cutoffDate != null">
 				cutoff_date = #{cutoffDate,jdbcType=DATE},
@@ -75,47 +73,56 @@
 			<if test="scaleId != null">
 			 	scale_id = #{scaleId,jdbcType=BIGINT},
 			</if>
+			<if test="appId != null">
+			 	app_id = #{appId,jdbcType=BIGINT},
+			</if>
 			remark = #{remark,jdbcType=VARCHAR}
 		</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 
 	<select id="selectAllList" resultMap="BaseResultMap" parameterType="java.util.Map" >
-	  	select <include refid="base_columns" /> from record
+	  	select <include refid="base_columns" /> from record c left join app a on a.id = c.app_id 
 	     <where>
-	     	  <if test="name != null"> 
-				and name = #{name,jdbcType=VARCHAR} 
-			  </if>
-			  <if test="qname != null">
-				and name like concat('%', #{qname,jdbcType=VARCHAR}, '%') 
-			  </if>
 			  <if test="startExpireDate != null and startExpireDate != ''">  
-		    	and expire_date &gt;= #{startExpireDate, jdbcType=DATE}
+		    	and c.expire_date &gt;= #{startExpireDate, jdbcType=DATE}
 		      </if>
 		      <if test="endExpireDate != null and endExpireDate != ''">  
-		    	and expire_date &lt;= #{endExpireDate, jdbcType=DATE}
+		    	and c.expire_date &lt;= #{endExpireDate, jdbcType=DATE}
 		      </if>
 		      <if test="startCreateTime != null and startCreateTime != ''">  
-		    	and create_time &gt;= #{startCreateTime, jdbcType=TIMESTAMP}
+		    	and c.create_time &gt;= #{startCreateTime, jdbcType=TIMESTAMP}
 		      </if>
 		      <if test="endCreateTime != null and endCreateTime != ''">  
-		    	and create_time &lt;= #{endCreateTime, jdbcType=TIMESTAMP}
+		    	and c.create_time &lt;= #{endCreateTime, jdbcType=TIMESTAMP}
 		      </if>
 		      <if test="startUpdateTime != null and startUpdateTime != ''">  
-		    	and update_time &gt;= #{startUpdateTime, jdbcType=TIMESTAMP}
+		    	and c.update_time &gt;= #{startUpdateTime, jdbcType=TIMESTAMP}
 		      </if>
 		      <if test="endUpdateTime != null and endUpdateTime != ''">  
-		    	and update_time &lt;= #{endUpdateTime, jdbcType=TIMESTAMP}
+		    	and c.update_time &lt;= #{endUpdateTime, jdbcType=TIMESTAMP}
 		      </if>
 		      <if test="startCutoffDate != null and startCutoffDate != ''">
-				and cutoff_date &gt;= #{startCutoffDate,jdbcType=DATE}
+				and c.cutoff_date &gt;= #{startCutoffDate,jdbcType=DATE}
 			  </if>
 			  <if test="endCutoffDate != null and endCutoffDate != ''">  
-		    	and cutoff_date &lt;= #{endCutoffDate, jdbcType=DATE}
+		    	and c.cutoff_date &lt;= #{endCutoffDate, jdbcType=DATE}
 		      </if>
-		      <if test="isCutoff != null">
-				and is_cutoff = #{isCutoff,jdbcType=INTEGER}
+		      <if test="type != null">
+				and c.type = #{type,jdbcType=INTEGER}
 			 </if>
+			 <if test="appId != null">
+			 	and c.app_id = #{appId,jdbcType=BIGINT}
+			 </if>
+			 <if test="isDelete != null">
+				and a.is_delete = #{isDelete,jdbcType=INTEGER}
+			  </if>
+			  <if test="name != null"> 
+				and a.name = #{name,jdbcType=VARCHAR} 
+			  </if>
+			  <if test="qname != null">
+				and a.name like concat('%', #{qname,jdbcType=VARCHAR}, '%') 
+			  </if>
 	      </where>
 	      
 		  <choose>

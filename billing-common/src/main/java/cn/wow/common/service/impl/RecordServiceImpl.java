@@ -51,7 +51,6 @@ public class RecordServiceImpl implements RecordService{
 			for (Long id : ids) {
 				Record record = recordDao.selectOne(id);
 				record.setUpdateTime(date);
-				record.setIsCutoff(1);
 				
 				recordDao.update(record);
 			}

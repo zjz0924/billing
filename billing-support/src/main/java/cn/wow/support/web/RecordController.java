@@ -70,16 +70,18 @@ public class RecordController extends AbstractController {
 	@RequestMapping(value = "/list")
 	public String list(HttpServletRequest httpServletRequest, Model model, String name, String startExpireDate,
 			String endExpireDate, String startCreateTime, String endCreateTime, String startUpdateTime,
-			String endUpdateTime, String startCutoffDate, String endCutoffDate, String type) {
+			String endUpdateTime, String startCutoffDate, String endCutoffDate, String type, String appId) {
 
-		httpServletRequest.setAttribute("pageSize", "15");
-		Map<String, Object> map = new PageMap(httpServletRequest);
-		map.put("isCutoff", type);
-		queryMap.put("isCutoff", type);
+		Map<String, Object> map = new PageMap(false);
+		map.put("custom_order_sql", "cutoff_date desc");
+		queryMap.put("custom_order_sql", "cutoff_date desc");
 
-		map.put("custom_order_sql", "cutoff_date desc, name asc");
-		queryMap.put("custom_order_sql", "cutoff_date desc, name asc");
-
+		if (StringUtils.isNotBlank(appId)) {
+			map.put("appId", appId);
+			model.addAttribute("appId", appId);
+			queryMap.put("appId", appId);
+		}
+		
 		if (StringUtils.isNotBlank(name)) {
 			map.put("qname", name);
 			model.addAttribute("name", name);
@@ -128,7 +130,12 @@ public class RecordController extends AbstractController {
 		if (StringUtils.isNotBlank(endUpdateTime)) {
 			map.put("endUpdateTime", endUpdateTime + " 23:59:59");
 			model.addAttribute("endUpdateTime", endUpdateTime);
-			queryMap.put("startUpdateTime", startUpdateTime + " 00:00:00");
+			queryMap.put("endUpdateTime", endUpdateTime + " 23:59:59");
+		}
+		if (StringUtils.isNotBlank(type)) {
+			map.put("type", type);
+			model.addAttribute("type", type);
+			queryMap.put("type", type);
 		}
 
 		// 金额统计
@@ -139,12 +146,7 @@ public class RecordController extends AbstractController {
 		model.addAttribute("dataList", dataList);
 		model.addAttribute("priceItem", priceItem);
 
-		if ("0".equals(type)) { // 未结算
-			return "record/un_record_list";
-		} else { // 已结算
-			return "record/record_list";
-		}
-
+		return "record/record_list";
 	}
 
 	@RequestMapping(value = "/detail")
@@ -174,7 +176,7 @@ public class RecordController extends AbstractController {
 
 	@ResponseBody
 	@RequestMapping(value = "/save")
-	public AjaxVO save(HttpServletRequest request, Model model, String id, String name, String expireDate,
+	public AjaxVO save(HttpServletRequest request, Model model, String id, String expireDate,
 			String comboId, String scaleId, String remark, String cutoffDate) {
 		AjaxVO vo = new AjaxVO();
 		vo.setMsg("编辑成功");
@@ -205,7 +207,6 @@ public class RecordController extends AbstractController {
 
 			if (StringUtils.isNotBlank(id)) {
 				record = recordService.selectOne(Long.parseLong(id));
-				record.setName(name);
 				if (StringUtils.isNoneBlank(expireDate)) {
 					record.setExpireDate(sdf.parse(expireDate));
 				}
@@ -228,7 +229,6 @@ public class RecordController extends AbstractController {
 				recordService.update(getCurrentUserName(), record);
 			} else {
 				record = new Record();
-				record.setName(name);
 
 				if (StringUtils.isNoneBlank(expireDate)) {
 					record.setExpireDate(sdf.parse(expireDate));
@@ -249,7 +249,6 @@ public class RecordController extends AbstractController {
 					record.setCutoffDate(sdf.parse(cutoffDate));
 				}
 
-				record.setIsCutoff(0);
 				record.setRemark(remark);
 				recordService.save(getCurrentUserName(), record);
 
@@ -317,143 +316,6 @@ public class RecordController extends AbstractController {
 		}
 
 		return vo;
-	}
-
-	/**
-	 * 导出清单
-	 */
-	@RequestMapping(value = "/exportList")
-	public void exportList(HttpServletRequest request, HttpServletResponse response, String type) {
-		Account currentAccount = (Account) request.getSession().getAttribute(Contants.CURRENT_ACCOUNT);
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
-		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMdd");
-
-		String filename = "";
-		if ("0".equals(type)) { // 未结算
-			filename = "未结算清单-";
-		} else { // 已结算
-			filename = "收入记录清单-";
-		}
-		filename = filename + sdf2.format(new Date());
-
-		try {
-			// 设置头
-			ImportExcelUtil.setResponseHeader(response, filename + ".xlsx");
-
-			Workbook wb = new SXSSFWorkbook(100); // 保持100条在内存中，其它保存到磁盘中
-			// 工作簿
-			Sheet sh = wb.createSheet("清单");
-			sh.setColumnWidth(0, (short) 4000);
-			sh.setColumnWidth(1, (short) 4000);
-			sh.setColumnWidth(2, (short) 4000);
-			sh.setColumnWidth(3, (short) 3000);
-			sh.setColumnWidth(4, (short) 3000);
-			sh.setColumnWidth(5, (short) 3000);
-			sh.setColumnWidth(6, (short) 3000);
-			sh.setColumnWidth(7, (short) 6000);
-			sh.setColumnWidth(8, (short) 6000);
-			sh.setColumnWidth(9, (short) 6000);
-
-			Map<String, CellStyle> styles = ImportExcelUtil.createStyles(wb);
-
-			String[] titles = { "结算日期", "名称", "过期时间", "总金额", "比例(%)", "我的/元", "其他/元", "创建时间", "更新时间", "备注" };
-			int r = 0;
-
-			Row titleRow = sh.createRow(0);
-			titleRow.setHeight((short) 450);
-			for (int k = 0; k < titles.length; k++) {
-				Cell cell = titleRow.createCell(k);
-				cell.setCellStyle(styles.get("header"));
-				cell.setCellValue(titles[k]);
-			}
-
-			++r;
-
-			// 金额统计
-			PriceItem priceItem = statisticsService.statisticsPrice(queryMap);
-			List<Record> dataList = recordService.selectAllList(queryMap);
-
-			for (int j = 0; j < dataList.size(); j++) {// 添加数据
-				Row contentRow = sh.createRow(r);
-				contentRow.setHeight((short) 400);
-				Record record = dataList.get(j);
-
-				Cell cell1 = contentRow.createCell(0);
-				cell1.setCellStyle(styles.get("cell"));
-				cell1.setCellValue(sdf1.format(record.getCutoffDate()));
-
-				Cell cell2 = contentRow.createCell(1);
-				cell2.setCellStyle(styles.get("cell"));
-				cell2.setCellValue(record.getName());
-
-				Cell cell3 = contentRow.createCell(2);
-				cell3.setCellStyle(styles.get("cell"));
-				cell3.setCellValue(sdf1.format(record.getExpireDate()));
-
-				Cell cell4 = contentRow.createCell(3);
-				cell4.setCellStyle(styles.get("cell"));
-				if(record.getCombo() != null) {
-					cell4.setCellValue(record.getCombo().getPrice());
-				}
-
-				Cell cell5 = contentRow.createCell(4);
-				cell5.setCellStyle(styles.get("cell"));
-				if(record.getScale() != null) {
-					cell5.setCellValue(record.getScale().getVal());
-				}
-
-				Cell cell6 = contentRow.createCell(5);
-				cell6.setCellStyle(styles.get("cell"));
-				cell6.setCellValue(record.getExtract1());
-
-				Cell cell7 = contentRow.createCell(6);
-				cell7.setCellStyle(styles.get("cell"));
-				cell7.setCellValue(record.getExtract2());
-
-				Cell cell8 = contentRow.createCell(7);
-				cell8.setCellStyle(styles.get("cell"));
-				cell8.setCellValue(sdf.format(record.getCreateTime()));
-
-				Cell cell9 = contentRow.createCell(8);
-				cell9.setCellStyle(styles.get("cell"));
-				cell9.setCellValue(sdf.format(record.getUpdateTime()));
-
-				Cell cell10 = contentRow.createCell(9);
-				cell10.setCellStyle(styles.get("cell"));
-				cell10.setCellValue(record.getRemark());
-
-				r++;
-			}
-
-			Row contentRow = sh.createRow(++r);
-			contentRow.setHeight((short) 400);
-
-			Cell cell1 = contentRow.createCell(0);
-			cell1.setCellStyle(styles.get("cell"));
-			cell1.setCellValue("总金额：" + (priceItem.getTotal1() + priceItem.getTotal2()));
-
-			Cell cell2 = contentRow.createCell(1);
-			cell2.setCellStyle(styles.get("cell"));
-			cell2.setCellValue("我的：" + priceItem.getTotal1());
-
-			Cell cell3 = contentRow.createCell(2);
-			cell3.setCellStyle(styles.get("cell"));
-			cell3.setCellValue("其他：" + priceItem.getTotal2());
-
-			OutputStream os = response.getOutputStream();
-			wb.write(os);
-			os.flush();
-			os.close();
-
-			String logDetail = "导出记录清单";
-			operationLogService.save(currentAccount.getUserName(), OperationType.EXPORT, ServiceType.RECORD, logDetail);
-
-		} catch (Exception e) {
-			logger.error("清单导出失败");
-
-			e.printStackTrace();
-		}
 	}
 
 }

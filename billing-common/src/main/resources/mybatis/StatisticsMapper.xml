@@ -3,40 +3,46 @@
 <mapper namespace="cn.wow.common.dao.StatisticsDao">
 	<!-- 统计总金额 -->
 	<select id="statisticsPrice" resultType="java.util.Map" parameterType="java.util.Map">
-		select case when sum(extract2) is null then 0 else sum(extract2) end total2, case when sum(extract1) is null then 0 else sum(extract1) end total1 from record
+		select case when sum(extract2) is null then 0 else sum(extract2) end total2, case when sum(extract1) is null then 0 else sum(extract1) end total1 from record c left join app a on c.app_id = a.id
 		<where>
 			 <if test="name != null"> 
-				and name = #{name,jdbcType=VARCHAR} 
+				and a.name = #{name,jdbcType=VARCHAR} 
 			  </if>
 			  <if test="qname != null">
-				and name like concat('%', #{qname,jdbcType=VARCHAR}, '%') 
+				and a.name like concat('%', #{qname,jdbcType=VARCHAR}, '%') 
 			  </if>
 			  <if test="startExpireDate != null and startExpireDate != ''">  
-		    	and expire_date &gt;= #{startExpireDate, jdbcType=DATE}
+		    	and c.expire_date &gt;= #{startExpireDate, jdbcType=DATE}
 		      </if>
 		      <if test="endExpireDate != null and endExpireDate != ''">  
-		    	and expire_date &lt;= #{endExpireDate, jdbcType=DATE}
+		    	and c.expire_date &lt;= #{endExpireDate, jdbcType=DATE}
 		      </if>
 		      <if test="startCreateTime != null and startCreateTime != ''">  
-		    	and create_time &gt;= #{startCreateTime, jdbcType=TIMESTAMP}
+		    	and c.create_time &gt;= #{startCreateTime, jdbcType=TIMESTAMP}
 		      </if>
 		      <if test="endCreateTime != null and endCreateTime != ''">  
-		    	and create_time &lt;= #{endCreateTime, jdbcType=TIMESTAMP}
+		    	and c.create_time &lt;= #{endCreateTime, jdbcType=TIMESTAMP}
 		      </if>
 		      <if test="startUpdateTime != null and startUpdateTime != ''">  
-		    	and update_time &gt;= #{startUpdateTime, jdbcType=TIMESTAMP}
+		    	and c.update_time &gt;= #{startUpdateTime, jdbcType=TIMESTAMP}
 		      </if>
 		      <if test="endUpdateTime != null and endUpdateTime != ''">  
-		    	and update_time &lt;= #{endUpdateTime, jdbcType=TIMESTAMP}
+		    	and c.update_time &lt;= #{endUpdateTime, jdbcType=TIMESTAMP}
 		      </if>
 		      <if test="startCutoffDate != null and startCutoffDate != ''">
-				and cutoff_date &gt;= #{startCutoffDate,jdbcType=DATE}
+				and c.cutoff_date &gt;= #{startCutoffDate,jdbcType=DATE}
 			  </if>
 			  <if test="endCutoffDate != null and endCutoffDate != ''">  
-		    	and cutoff_date &lt;= #{endCutoffDate, jdbcType=DATE}
+		    	and c.cutoff_date &lt;= #{endCutoffDate, jdbcType=DATE}
 		      </if>
-		      <if test="isCutoff != null">
-				and is_cutoff = #{isCutoff,jdbcType=INTEGER}
+			  <if test="appId != null">
+			 	and c.app_id = #{appId,jdbcType=BIGINT}
+			 </if>
+			  <if test="isDelete != null">
+				and a.is_delete = #{isDelete,jdbcType=INTEGER}
+			  </if>
+			   <if test="type != null">
+				and c.type = #{type,jdbcType=INTEGER}
 			 </if>
 		</where>
 	
@@ -47,7 +53,7 @@
 		select a.datelist, case when b.total2 is null then 0 else b.total2 end total2, case when b.total1 is null then 0 else b.total1 end total1 from 
 		(select datelist from calendar where datelist &gt;= #{startCutoffDate,jdbcType=DATE} and datelist &lt;= #{endCutoffDate, jdbcType=DATE}) a
 		left join 
-		(select cutoff_date ,sum(extract2) total2, sum(extract1) total1 from record where cutoff_date &gt;= #{startCutoffDate,jdbcType=DATE} and cutoff_date &lt;= #{endCutoffDate, jdbcType=DATE} and is_cutoff = 1 group by cutoff_date) b
+		(select cutoff_date ,sum(extract2) total2, sum(extract1) total1 from record  r left join app a on a.id = r.app_id where cutoff_date &gt;= #{startCutoffDate,jdbcType=DATE} and cutoff_date &lt;= #{endCutoffDate, jdbcType=DATE} and a.is_delete = 0 group by cutoff_date) b
 		on a.datelist = b.cutoff_date order by datelist asc
 	</select>
 

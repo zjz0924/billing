@@ -80,27 +80,16 @@ public class ComboController extends AbstractController{
                 
                 vo.setMsg("编辑成功");
             }else{
-            	Map<String, Object> rMap = new HashMap<String, Object>();
-				rMap.put("name", comboName);
-				List<Combo> userList = comboService.selectAllList(rMap);
-				
-				if (userList != null && userList.size() > 0) {
-					vo.setData("userName");
-					vo.setMsg("套餐名称已经存在");
-					vo.setSuccess(false);
-					return vo;
-				} else {
-					combo = new Combo();
-	                combo.setName(comboName);
-	                combo.setRemark(remark);
-	                combo.setPrice(price);
-	                combo.setDuration(duration);
-	                combo.setIsDelete(0);
-	                combo.setCreateTime(new Date());
-	                comboService.save(getCurrentUserName(), combo);
-	                
-	                vo.setMsg("新增成功");
-				}
+				combo = new Combo();
+                combo.setName(comboName);
+                combo.setRemark(remark);
+                combo.setPrice(price);
+                combo.setDuration(duration);
+                combo.setIsDelete(0);
+                combo.setCreateTime(new Date());
+                comboService.save(getCurrentUserName(), combo);
+                
+                vo.setMsg("新增成功");
             }
         }catch(Exception ex){
         	logger.error("套餐保存失败", ex);

@@ -43,7 +43,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 		List<PriceItem> dataList = new ArrayList<PriceItem>();
 
 		Map<String, Object> queryMap = new PageMap(false);
-		queryMap.put("isCutoff", 1);
+		queryMap.put("isDelete", 0);
 		List<Map<String, Double>> total = statisticsDao.statisticsPrice(queryMap);
 
 		queryMap.put("startCutoffDate", DateUtils.getToday());

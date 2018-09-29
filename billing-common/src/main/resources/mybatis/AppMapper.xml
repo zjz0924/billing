@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wow.common.dao.AppDao">
+	<resultMap id="BaseResultMap" type="cn.wow.common.domain.App">
+		<id column="id" jdbcType="BIGINT" property="id" />
+		<result column="name" jdbcType="VARCHAR" property="name" />
+		<result column="effective_date" property="effectiveDate" jdbcType="DATE" />
+		<result column="expire_date" property="expireDate" jdbcType="DATE" />
+		<result column="remark" jdbcType="VARCHAR" property="remark" />
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+		<result column="is_delete" jdbcType="INTEGER" property="isDelete" />
+		<result column="is_cut" jdbcType="INTEGER" property="isCut" />
+	</resultMap>
+	
+	<sql id="base_columns">
+		id, name, effective_date, expire_date, remark, create_time, update_time, is_delete, is_cut
+	</sql>
+	
+	<select id="selectOne" parameterType="java.lang.Long" resultMap="BaseResultMap">
+		select <include refid="base_columns" /> from app a where id = #{id,jdbcType=BIGINT}
+	</select>
+	
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+		update app set is_delete = 1 where id = #{id,jdbcType=BIGINT}
+	</delete>
+	
+	<insert id="insert" parameterType="cn.wow.common.domain.App">
+		<selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+		    SELECT @@IDENTITY
+		</selectKey>
+		
+		insert into app (name, effective_date, expire_date, remark, create_time, update_time, is_delete, is_cut)
+		values (#{name,jdbcType=VARCHAR}, #{effectiveDate,jdbcType=DATE},
+		#{expireDate,jdbcType=DATE}, #{remark,jdbcType=VARCHAR},
+		#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=INTEGER}, #{isCut,jdbcType=INTEGER}
+		)
+	</insert>
+	
+	<update id="update" parameterType="cn.wow.common.domain.App">
+		update app
+		<set>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="effectiveDate != null">
+				effective_date = #{effectiveDate,jdbcType=DATE},
+			</if>
+			<if test="expireDate != null">
+				expire_date = #{expireDate,jdbcType=DATE},
+			</if>
+	
+			<if test="updateTime != null">
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDelete != null">
+				is_delete = #{isDelete,jdbcType=INTEGER},
+			</if>
+			<if test="isCut != null">
+				is_cut = #{isCut,jdbcType=INTEGER},
+			</if>
+			
+			remark = #{remark,jdbcType=VARCHAR}
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	
+	<select id="selectAllList" resultMap="BaseResultMap" parameterType="java.util.Map" >
+	  	select <include refid="base_columns" /> from app
+	     <where>
+	     	  <if test="name != null"> 
+				and name = #{name,jdbcType=VARCHAR} 
+			  </if>
+			  <if test="qname != null">
+				and name like concat('%', #{qname,jdbcType=VARCHAR}, '%') 
+			  </if>
+			  <if test="startEffectiveDate != null and startEffectiveDate != ''">  
+		    	and effective_date &gt;= #{startEffectiveDate, jdbcType=DATE}
+		      </if>
+		      <if test="endEffectiveDate != null and endEffectiveDate != ''">  
+		    	and effective_date &lt;= #{endEffectiveDate, jdbcType=DATE}
+		      </if>
+			  <if test="startExpireDate != null and startExpireDate != ''">  
+		    	and expire_date &gt;= #{startExpireDate, jdbcType=DATE}
+		      </if>
+		      <if test="endExpireDate != null and endExpireDate != ''">  
+		    	and expire_date &lt;= #{endExpireDate, jdbcType=DATE}
+		      </if>
+		      <if test="startCreateTime != null and startCreateTime != ''">  
+		    	and create_time &gt;= #{startCreateTime, jdbcType=TIMESTAMP}
+		      </if>
+		      <if test="endCreateTime != null and endCreateTime != ''">  
+		    	and create_time &lt;= #{endCreateTime, jdbcType=TIMESTAMP}
+		      </if>
+		      <if test="startUpdateTime != null and startUpdateTime != ''">  
+		    	and update_time &gt;= #{startUpdateTime, jdbcType=TIMESTAMP}
+		      </if>
+		      <if test="endUpdateTime != null and endUpdateTime != ''">  
+		    	and update_time &lt;= #{endUpdateTime, jdbcType=TIMESTAMP}
+		      </if>
+			  <if test="isDelete != null">
+				and is_delete = #{isDelete,jdbcType=INTEGER}
+			  </if>
+			 <if test="isCut != null">
+				and is_cut = #{isCut,jdbcType=INTEGER}
+			  </if>
+			 <if test="id != null">
+				and id &lt;&gt; #{id,jdbcType=BIGINT}
+			  </if>
+	      </where>
+	      
+		  <choose>
+	  		<when test="custom_order_sql != null">
+	  			order by ${custom_order_sql}
+	  		</when>
+	  		<otherwise>
+	  			order by id desc
+	  		</otherwise>
+	 	 </choose>
+	  </select>
+	
+	
+	<select id="getAppNames" resultType="java.lang.String">
+		select DISTINCT(name) from app where is_delete = 0
+	</select>
+	
+</mapper>
