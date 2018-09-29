@@ -361,13 +361,22 @@ public class AppController extends AbstractController {
 	 * 新增列表
 	 */
 	@RequestMapping(value = "/newList")
-	public String newList(HttpServletRequest request, Model model, String name, String startCreateTime, String endCreateTime) {
+	public String newList(HttpServletRequest request, Model model, String name, String startCreateTime, String endCreateTime, String sort, String order) {
 
 		Map<String, Object> map = new PageMap(request);
-		map.put("custom_order_sql",  "create_time asc, name asc");
 		map.put("isCut", 0);
 		map.put("isDelete", "0");
 
+		if(StringUtils.isBlank(sort)) {
+			sort = "create_time";
+		}
+		if(StringUtils.isBlank(order)) {
+			order = "desc";
+		}
+		
+		String orderSql = sort + " " + order + ", name asc";
+		map.put("custom_order_sql", orderSql);
+		
 		if (StringUtils.isNotBlank(name)) {
 			map.put("qname", name);
 			model.addAttribute("name", name);
@@ -384,6 +393,9 @@ public class AppController extends AbstractController {
 
 		List<App> dataList = appService.selectAllList(map);
 		model.addAttribute("dataList", dataList);
+		
+		model.addAttribute("sort", sort);
+		model.addAttribute("order", order);
 		
 		return "app/app_new_list";
 	}

@@ -22,12 +22,22 @@
 	<form id="queryForm" name="queryForm" action="${ctx}/app/newList" method="post">
 		<div class="page-container">
 			<div class="text-c" style="text-align: left;"> 
-			          名称：<input type="text" class="input-text" style="width:200px;" id="name" name="name" value="${name}">&nbsp;&nbsp;&nbsp;&nbsp;
+			          名称：<input type="text" class="input-text" style="width:160px;" id="name" name="name" value="${name}">&nbsp;&nbsp;&nbsp;&nbsp;
 			          
 				 创建时间：
-				<input type="text" onfocus="WdatePicker()" id="startCreateTime" name="startCreateTime" class="input-text Wdate" style="width:150px;" value="${startCreateTime}">
+				<input type="text" onfocus="WdatePicker()" id="startCreateTime" name="startCreateTime" class="input-text Wdate" style="width:120px;" value="${startCreateTime}">
 				-
-				<input type="text" onfocus="WdatePicker()" id="endCreateTime" name="endCreateTime" class="input-text Wdate" style="width:150px;" value="${endCreateTime}">&nbsp;&nbsp;&nbsp;&nbsp;
+				<input type="text" onfocus="WdatePicker()" id="endCreateTime" name="endCreateTime" class="input-text Wdate" style="width:120px;" value="${endCreateTime}">&nbsp;&nbsp;&nbsp;&nbsp;
+				
+				排序：<select class="select input-text" id="sort" name="sort" style="width: 120px;">
+			          	<option value="create_time" <c:if test="${sort == 'create_time'}">selected="selected"</c:if>>创建时间</option>
+						<option value="name" <c:if test="${sort == 'name'}">selected="selected"</c:if>>名称</option>
+					</select>
+					
+					<select class="select input-text" id="order" name="order" style="width: 120px;">
+			          	<option value="desc" <c:if test="${order == 'desc'}">selected="selected"</c:if>>降序</option>
+			          	<option value="asc" <c:if test="${order == 'asc'}">selected="selected"</c:if>>升序</option>
+					</select>&nbsp;&nbsp;&nbsp;
 				
 				<button type="button" class="btn btn-success" onclick="searchData();"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
 				<button type="button" class="btn btn-danger" onclick="resetData();"><i class="Hui-iconfont">&#xe665;</i> 重置</button>	
@@ -44,10 +54,10 @@
 				<thead>
 					<tr class="text-c">
 						<th width="30">序号</th>
-						<th width="400">名称</th>
+						<th width="300">名称</th>
 						<th width="30">创建时间</th>
 						<th width="300">备注</th>
-						<th width="70">操作</th>
+						<th width="100">操作</th>
 					</tr> 
 				</thead>
 				
