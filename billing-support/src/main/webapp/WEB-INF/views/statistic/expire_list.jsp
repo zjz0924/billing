@@ -40,7 +40,6 @@
 						<th width="120">过期时间</th>
 						<th width="30">创建时间</th>
 						<th width="30">更新时间</th>
-						<th width="80">是否结算</th>
 						<th width="150">备注</th>
 						<th width="70">操作</th>
 					</tr> 
@@ -54,10 +53,6 @@
 							<td style="color:red; font-weight: bold;"><fmt:formatDate value='${vo.expireDate }' type="date" pattern="yyyy-MM-dd" /></td>
 							<td><fmt:formatDate value='${vo.createTime }' type="date" pattern="yyyy-MM-dd HH:mm:ss"/></td>
 							<td><fmt:formatDate value='${vo.updateTime }' type="date" pattern="yyyy-MM-dd HH:mm:ss"/></td>
-							<td>
-								<c:if test="${vo.isCut == 0 }"><span style="color:red; font-weight: bold;">否</span></c:if>
-								<c:if test="${vo.isCut == 1 }"><span style="color:green; font-weight: bold;">是</span></c:if>
-							</td>
 							<td title="${vo.remark}">${vo.remark}</td>
 							<td class="td-manage">
 								<c:if test="${vo.isCut == 0 }">

@@ -209,7 +209,7 @@ public class StatisticController extends AbstractController {
 	public String Expire(HttpServletRequest request, Model model, String type) {
 
 		Map<String, Object> map = new PageMap(request);
-		map.put("custom_order_sql", "expire_date asc");
+		map.put("custom_order_sql", "expire_date asc, name asc");
 		map.put("isDelete", "0");
 
 		String endExpireDate = null;
