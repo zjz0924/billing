@@ -58,7 +58,7 @@
 					<span>总金额：</span>
 					<span style="font-weight:bold; color:red;"><fmt:formatNumber type="number" value="${priceItem.total1 + priceItem.total2}" pattern="0.0" maxFractionDigits="1"/></span><span>&nbsp;&nbsp;元</span>
 					<span style="margin-left: 40px;">我：</span>
-					<span style="font-weight:bold; color:red;">${priceItem.total1 }</span><span>&nbsp;&nbsp;元</span>
+					<span style="font-weight:bold; color:red;"><fmt:formatNumber type="number" value="${priceItem.total1 }" pattern="0.0" maxFractionDigits="1"/></span><span>&nbsp;&nbsp;元</span>
 					<span style="margin-left: 40px;">其他：</span>
 					<span style="font-weight:bold; color:red;"><fmt:formatNumber type="number" value="${priceItem.total2 }" pattern="0.0" maxFractionDigits="1"/></span><span>&nbsp;&nbsp;元 </span>
 				</span>

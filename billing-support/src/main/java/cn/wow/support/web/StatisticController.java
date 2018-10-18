@@ -1,6 +1,7 @@
 package cn.wow.support.web;
 
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -100,8 +101,17 @@ public class StatisticController extends AbstractController {
 		for (Map<String, Object> map : dataList) {
 			Date dateVal = (Date) map.get("datelist");
 			dateList.add(sdf.format(dateVal));
-			valueList1.add((Double) map.get("total1"));
-			valueList2.add((Double) map.get("total2"));
+			
+			// 保留一位小数
+			BigDecimal b1 = new BigDecimal((Double) map.get("total1"));
+			double total1 = b1.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+			
+			// 保留一位小数
+			BigDecimal b2 = new BigDecimal((Double) map.get("total2"));
+			double total2 = b2.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+			
+			valueList1.add(total1);
+			valueList2.add(total2);
 		}
 		
 		model.addAttribute("month", date);

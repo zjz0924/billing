@@ -38,9 +38,9 @@
 					<c:forEach items="${priceDataList}" var="vo">
 						<tr class="text-c">
 							<td>${vo.name}</td>
-							<td>${vo.total1}</td>
-							<td>${vo.total2}</td>
-							<td style="color:red;font-weight:bold;">${vo.total1 + vo.total2}</td>
+							<td><fmt:formatNumber type="number" value="${vo.total1}" pattern="0.0" maxFractionDigits="1"/></td>
+							<td><fmt:formatNumber type="number" value="${vo.total2}" pattern="0.0" maxFractionDigits="1"/></td>
+							<td style="color:red;font-weight:bold;"><fmt:formatNumber type="number" value="${vo.total1 + vo.total2}" pattern="0.0" maxFractionDigits="1"/></td>
 						</tr>
 					</c:forEach>
 				</tbody>

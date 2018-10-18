@@ -25,7 +25,7 @@ public class PageMap extends HashMap<String, Object> implements IPageMap<String,
 	/**
 	 * 默认一页大小
 	 */
-	private Integer defaultPageSize = 10;
+	private Integer defaultPageSize = 30;
 	
 	private Boolean isPage = true;
 	
