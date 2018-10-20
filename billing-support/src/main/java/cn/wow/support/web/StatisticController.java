@@ -221,6 +221,7 @@ public class StatisticController extends AbstractController {
 		Map<String, Object> map = new PageMap(request);
 		map.put("custom_order_sql", "expire_date asc, name asc");
 		map.put("isDelete", "0");
+		map.put("valid", "1");
 
 		String endExpireDate = null;
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

@@ -11,10 +11,11 @@
 		<result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
 		<result column="is_delete" jdbcType="INTEGER" property="isDelete" />
 		<result column="is_cut" jdbcType="INTEGER" property="isCut" />
+		<result column="valid" jdbcType="INTEGER" property="valid" />
 	</resultMap>
 	
 	<sql id="base_columns">
-		id, name, effective_date, expire_date, remark, create_time, update_time, is_delete, is_cut
+		id, name, effective_date, expire_date, remark, create_time, update_time, is_delete, is_cut, valid
 	</sql>
 	
 	<select id="selectOne" parameterType="java.lang.Long" resultMap="BaseResultMap">
@@ -30,10 +31,10 @@
 		    SELECT @@IDENTITY
 		</selectKey>
 		
-		insert into app (name, effective_date, expire_date, remark, create_time, update_time, is_delete, is_cut)
+		insert into app (name, effective_date, expire_date, remark, create_time, update_time, is_delete, is_cut, valid)
 		values (#{name,jdbcType=VARCHAR}, #{effectiveDate,jdbcType=DATE},
 		#{expireDate,jdbcType=DATE}, #{remark,jdbcType=VARCHAR},
-		#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=INTEGER}, #{isCut,jdbcType=INTEGER}
+		#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=INTEGER}, #{isCut,jdbcType=INTEGER}, #{valid,jdbcType=INTEGER}
 		)
 	</insert>
 	
@@ -58,6 +59,9 @@
 			</if>
 			<if test="isCut != null">
 				is_cut = #{isCut,jdbcType=INTEGER},
+			</if>
+			<if test="valid != null">
+				valid = #{valid,jdbcType=INTEGER},
 			</if>
 			
 			remark = #{remark,jdbcType=VARCHAR}
@@ -108,6 +112,9 @@
 			 <if test="id != null">
 				and id &lt;&gt; #{id,jdbcType=BIGINT}
 			  </if>
+			  <if test="valid != null">
+				and valid = #{valid,jdbcType=INTEGER}
+			</if>
 	      </where>
 	      
 		  <choose>

@@ -61,10 +61,9 @@ public class AppController extends AbstractController {
 	@Autowired
 	private ScaleService scaleService;
 
-
 	@Value("${app.url}")
 	protected String appUrl;
-	
+
 	@Autowired
 	private OperationLogService operationLogService;
 
@@ -74,21 +73,22 @@ public class AppController extends AbstractController {
 	@RequestMapping(value = "/list")
 	public String list(HttpServletRequest request, Model model, String name, String startEffectiveDate,
 			String endEffectiveDate, String startExpireDate, String endExpireDate, String startCreateTime,
-			String endCreateTime, String startUpdateTime, String endUpdateTime, String sort, String order,  String isCut) {
+			String endCreateTime, String startUpdateTime, String endUpdateTime, String sort, String order, String isCut,
+			String valid) {
 
 		Map<String, Object> map = new PageMap(request);
 		map.put("isDelete", "0");
-		
-		if(StringUtils.isBlank(sort)) {
+
+		if (StringUtils.isBlank(sort)) {
 			sort = "update_time";
 		}
-		if(StringUtils.isBlank(order)) {
+		if (StringUtils.isBlank(order)) {
 			order = "desc";
 		}
-		
+
 		String orderSql = sort + " " + order + ", name asc";
 		map.put("custom_order_sql", orderSql);
-		
+
 		queryMap.clear();
 		queryMap.put("custom_order_sql", orderSql);
 		queryMap.put("isDelete", "0");
@@ -144,18 +144,23 @@ public class AppController extends AbstractController {
 			queryMap.put("endUpdateTime", endUpdateTime + " 23:59:59");
 			model.addAttribute("endUpdateTime", endUpdateTime);
 		}
-		if(StringUtils.isNotBlank(isCut)) {
+		if (StringUtils.isNotBlank(isCut)) {
 			map.put("isCut", isCut);
 			queryMap.put("isCut", isCut);
 			model.addAttribute("isCut", isCut);
 		}
+		if (StringUtils.isNotBlank(valid)) {
+			map.put("valid", valid);
+			queryMap.put("valid", valid);
+			model.addAttribute("valid", valid);
+		}
 
 		List<App> dataList = appService.selectAllList(map);
 		model.addAttribute("dataList", dataList);
-		
+
 		model.addAttribute("sort", sort);
 		model.addAttribute("order", order);
-		
+
 		return "app/app_list";
 	}
 
@@ -165,13 +170,14 @@ public class AppController extends AbstractController {
 			App app = appService.selectOne(Long.parseLong(id));
 			model.addAttribute("facadeBean", app);
 		}
-		
+
 		return "app/app_detail";
 	}
 
 	@ResponseBody
 	@RequestMapping(value = "/save")
-	public AjaxVO save(HttpServletRequest request, Model model, String id, String name, String remark) {
+	public AjaxVO save(HttpServletRequest request, Model model, String id, String name, String remark,
+			@RequestParam(value = "valid", required = false) int valid) {
 		AjaxVO vo = new AjaxVO();
 		vo.setMsg("编辑成功");
 
@@ -197,7 +203,8 @@ public class AppController extends AbstractController {
 						app.setName(name);
 						app.setRemark(remark);
 						app.setUpdateTime(date);
-						
+						app.setValid(valid);
+
 						appService.update(getCurrentUserName(), app);
 					}
 				}
@@ -219,6 +226,7 @@ public class AppController extends AbstractController {
 					app.setUpdateTime(date);
 					app.setIsDelete(0);
 					app.setIsCut(0);
+					app.setValid(valid);
 					appService.addApp(getCurrentUserName(), app);
 					vo.setMsg("添加成功");
 				}
@@ -268,7 +276,7 @@ public class AppController extends AbstractController {
 	@RequestMapping(value = "/renewDetail")
 	public String renewDetail(HttpServletRequest request, Model model, Long appId, int type) {
 		model.addAttribute("appId", appId);
-		
+
 		// 套餐信息
 		Map<String, Object> comboMap = new PageMap(false);
 		comboMap.put("custom_order_sql", "name asc");
@@ -290,15 +298,15 @@ public class AppController extends AbstractController {
 
 	@ResponseBody
 	@RequestMapping(value = "/renew")
-	public AjaxVO renew(HttpServletRequest request, Model model, Long appId, String expireDate,
-			String comboId, String scaleId, String remark, String cutoffDate, int type) {
+	public AjaxVO renew(HttpServletRequest request, Model model, Long appId, String expireDate, String comboId,
+			String scaleId, String remark, String cutoffDate, int type) {
 		AjaxVO vo = new AjaxVO();
 		vo.setMsg("续费成功");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
 		try {
 			Date date = new Date();
-			
+
 			double priceVal = 0d;
 			if (StringUtils.isNotBlank(comboId)) {
 				Combo combo = comboService.selectOne(Long.parseLong(comboId));
@@ -319,13 +327,13 @@ public class AppController extends AbstractController {
 			double f1 = bg.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
 			double f2 = priceVal - f1;
 
- 			Record record = new Record();
+			Record record = new Record();
 			App app = appService.selectOne(appId);
-			
+
 			record.setAppId(appId);
 			record.setCreateTime(date);
 			record.setUpdateTime(date);
-			if(StringUtils.isNotBlank(expireDate)) {
+			if (StringUtils.isNotBlank(expireDate)) {
 				record.setExpireDate(sdf.parse(expireDate));
 			}
 			if (StringUtils.isNoneBlank(cutoffDate)) {
@@ -337,11 +345,11 @@ public class AppController extends AbstractController {
 			record.setPrice(priceVal);
 			record.setExtract1(f1);
 			record.setExtract2(f2);
-			
+
 			app.setUpdateTime(date);
 			app.setExpireDate(record.getExpireDate());
 			app.setIsCut(1);
-			
+
 			appService.renewApp(getCurrentUserName(), app, record);
 
 		} catch (Exception ex) {
@@ -356,27 +364,27 @@ public class AppController extends AbstractController {
 		return vo;
 	}
 
-	
 	/**
 	 * 新增列表
 	 */
 	@RequestMapping(value = "/newList")
-	public String newList(HttpServletRequest request, Model model, String name, String startCreateTime, String endCreateTime, String sort, String order) {
+	public String newList(HttpServletRequest request, Model model, String name, String startCreateTime,
+			String endCreateTime, String sort, String order) {
 
 		Map<String, Object> map = new PageMap(request);
 		map.put("isCut", 0);
 		map.put("isDelete", "0");
 
-		if(StringUtils.isBlank(sort)) {
+		if (StringUtils.isBlank(sort)) {
 			sort = "create_time";
 		}
-		if(StringUtils.isBlank(order)) {
+		if (StringUtils.isBlank(order)) {
 			order = "desc";
 		}
-		
+
 		String orderSql = sort + " " + order + ", name asc";
 		map.put("custom_order_sql", orderSql);
-		
+
 		if (StringUtils.isNotBlank(name)) {
 			map.put("qname", name);
 			model.addAttribute("name", name);
@@ -393,14 +401,13 @@ public class AppController extends AbstractController {
 
 		List<App> dataList = appService.selectAllList(map);
 		model.addAttribute("dataList", dataList);
-		
+
 		model.addAttribute("sort", sort);
 		model.addAttribute("order", order);
-		
+
 		return "app/app_new_list";
 	}
-	
-	
+
 	/**
 	 * 导出
 	 */
@@ -411,7 +418,7 @@ public class AppController extends AbstractController {
 		SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMdd");
 		String filename = "App清单-" + sdf2.format(new Date());
-		
+
 		try {
 			// 设置头
 			ImportExcelUtil.setResponseHeader(response, filename + ".xlsx");
@@ -425,22 +432,22 @@ public class AppController extends AbstractController {
 			sh.setColumnWidth(3, (short) 6000);
 			sh.setColumnWidth(4, (short) 3000);
 			sh.setColumnWidth(5, (short) 10000);
-			
+
 			Map<String, CellStyle> styles = ImportExcelUtil.createStyles(wb);
 
-			String[] titles = {"APP名称", "过期日期", "创建时间", "更新时间", "是否结算", "备注"};
+			String[] titles = { "APP名称", "过期日期", "创建时间", "更新时间", "是否结算", "备注" };
 			int r = 0;
-			
+
 			Row titleRow = sh.createRow(0);
 			titleRow.setHeight((short) 450);
-			for(int k = 0; k < titles.length; k++){
+			for (int k = 0; k < titles.length; k++) {
 				Cell cell = titleRow.createCell(k);
 				cell.setCellStyle(styles.get("header"));
 				cell.setCellValue(titles[k]);
 			}
-			
+
 			++r;
-			
+
 			List<App> dataList = appService.selectAllList(queryMap);
 			for (int j = 0; j < dataList.size(); j++) {// 添加数据
 				Row contentRow = sh.createRow(r);
@@ -453,36 +460,36 @@ public class AppController extends AbstractController {
 
 				Cell cell2 = contentRow.createCell(1);
 				cell2.setCellStyle(styles.get("cell"));
-				if(app.getExpireDate() != null) {
+				if (app.getExpireDate() != null) {
 					cell2.setCellValue(sdf1.format(app.getExpireDate()));
 				}
 
 				Cell cell3 = contentRow.createCell(2);
 				cell3.setCellStyle(styles.get("cell"));
-				if(app.getCreateTime() != null) {
+				if (app.getCreateTime() != null) {
 					cell3.setCellValue(sdf.format(app.getCreateTime()));
 				}
-				
+
 				Cell cell4 = contentRow.createCell(3);
 				cell4.setCellStyle(styles.get("cell"));
-				if(app.getUpdateTime() != null) {
+				if (app.getUpdateTime() != null) {
 					cell4.setCellValue(sdf.format(app.getUpdateTime()));
 				}
-				
+
 				Cell cell5 = contentRow.createCell(4);
 				cell5.setCellStyle(styles.get("cell"));
-				if(app.getIsCut() == 0) {
+				if (app.getIsCut() == 0) {
 					cell5.setCellValue("否");
-				}else {
+				} else {
 					cell5.setCellValue("是");
 				}
-				
+
 				Cell cell6 = contentRow.createCell(5);
 				cell6.setCellStyle(styles.get("cell"));
 				if (StringUtils.isNotBlank(app.getRemark())) {
 					cell6.setCellValue(app.getRemark());
 				}
-				
+
 				r++;
 			}
 
@@ -490,15 +497,15 @@ public class AppController extends AbstractController {
 			wb.write(os);
 			os.flush();
 			os.close();
-			
-			String logDetail =  "导出APP清单";
+
+			String logDetail = "导出APP清单";
 			operationLogService.save(currentAccount.getUserName(), OperationType.EXPORT, ServiceType.APP, logDetail);
-			
+
 		} catch (Exception e) {
 			logger.error("App清单导出失败");
-			
+
 			e.printStackTrace();
 		}
 	}
-	
+
 }

@@ -30,6 +30,8 @@ public class App extends JpaEntity {
 	private Integer isDelete;
 	// 是否已结算，0：否，1：是
 	private Integer isCut;
+	// 使用中， 0：否    1：是
+	private Integer valid;
 
 	public Long getId() {
 		return id;
@@ -101,6 +103,14 @@ public class App extends JpaEntity {
 
 	public void setIsCut(Integer isCut) {
 		this.isCut = isCut;
+	}
+
+	public Integer getValid() {
+		return valid;
+	}
+
+	public void setValid(Integer valid) {
+		this.valid = valid;
 	}
 
 	@JsonIgnore

@@ -22,7 +22,7 @@
 	<form id="queryForm" name="queryForm" action="${ctx}/app/list" method="post">
 		<div class="page-container">
 			<div class="text-c" style="text-align: left;"> 
-			          名称：<input type="text" class="input-text" style="width:200px;" id="name" name="name" value="${name}">&nbsp;&nbsp;&nbsp;&nbsp;
+			          名称：<input type="text" class="input-text" style="width:200px;margin-left:33px;" id="name" name="name" value="${name}">&nbsp;&nbsp;&nbsp;&nbsp;
 			          
 				过期时间：
 				<input type="text" onfocus="WdatePicker()" id="startExpireDate" name="startExpireDate" class="input-text Wdate" style="width:120px;" value="${startExpireDate}">
@@ -38,7 +38,7 @@
 			
 			<div class="text-c" style="text-align: left; margin-top: 10px">
 				
-				结算：<select class="select input-text" id="isCut" name="isCut" style="width: 200px;">
+				结算：<select class="select input-text" id="isCut" name="isCut" style="width: 200px;margin-left:33px;">
 			          	<option value="">全部</option>
 			          	<option value="0" <c:if test="${isCut == 0}">selected="selected"</c:if>>否</option>
 						<option value="1" <c:if test="${isCut == 1}">selected="selected"</c:if>>是</option>
@@ -62,6 +62,13 @@
 			</div>
 			
 			<div class="text-c" style="text-align: left; margin-top: 10px">
+				是否使用：
+				<select class="select input-text" id="valid" name="valid" style="width: 200px;">
+					<option value="">请选择</option>
+					<option value="1" <c:if test="${valid == 1}">selected="selected"</c:if>>是</option>
+					<option value="0" <c:if test="${valid == 0}">selected="selected"</c:if>>否</option>
+				</select>&nbsp;&nbsp;&nbsp;
+				
 				<button type="button" class="btn btn-success" onclick="searchData();"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
 				<button type="button" class="btn btn-danger" onclick="resetData();"><i class="Hui-iconfont">&#xe665;</i> 重置</button>	
 			</div>
@@ -80,6 +87,7 @@
 						<th width="120">过期时间</th>
 						<th width="30">创建时间</th>
 						<th width="30">更新时间</th>
+						<th width="50">是否使用</th>
 						<th width="80">是否结算</th>
 						<th width="150">备注</th>
 						<th width="70">操作</th>
@@ -94,6 +102,10 @@
 							<td style="color:red; font-weight: bold;"><fmt:formatDate value='${vo.expireDate }' type="date" pattern="yyyy-MM-dd" /></td>
 							<td><fmt:formatDate value='${vo.createTime }' type="date" pattern="yyyy-MM-dd HH:mm:ss"/></td>
 							<td><fmt:formatDate value='${vo.updateTime }' type="date" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+							<td>
+								<c:if test="${vo.valid == 0}">否</c:if>
+								<c:if test="${vo.valid == 1}">是</c:if>
+							</td>
 							<td>
 								<c:if test="${vo.isCut == 0 }"><span style="color:red; font-weight: bold;">否</span></c:if>
 								<c:if test="${vo.isCut == 1 }"><span style="color:green; font-weight: bold;">是</span></c:if>
@@ -149,6 +161,7 @@
 			$("#startUpdateTime").val("");
 			$("#endUpdateTime").val("");
 			$("#isCut").val("");
+			$("#valid").val("");
 			$("#name").val("");
 			document.getElementById("queryForm").submit();
 		}
@@ -159,7 +172,7 @@
 				url += "?id=" + id
 			}
 			
-			layer_show("APP信息", url, '500', '300');
+			layer_show("APP信息", url, '600', '350');
 		}
 		
 		function recordList(appId){
